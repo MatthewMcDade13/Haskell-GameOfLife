@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Timer (
     createTimer,
     getElapsedTime
@@ -6,16 +7,17 @@ module Timer (
 import qualified SDL
 import qualified SDL.Time as SDL
 
-data Timer = Timer Float
+newtype Timer = Timer Float
 
 createTimer :: IO Timer
 createTimer = do
-    currTime <- SDL.time
-    return (Timer currTime)
+    !currTime <- SDL.ticks
+    return (Timer (fromIntegral currTime))
 
 getElapsedTime :: Timer -> IO Float
-getElapsedTime (Timer time) = do
-    currTime <- SDL.time
-    return (currTime - time)
-
+getElapsedTime (Timer !time) = do
+    !currTime <- SDL.ticks
+    let 
+        delta = (fromIntegral currTime) - time 
+        in return (delta * 0.001)
 
