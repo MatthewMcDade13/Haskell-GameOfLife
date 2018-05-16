@@ -8,6 +8,8 @@ import Foreign.C.Types
 import SDL.Vect
 import qualified SDL
 import System.IO
+import Game as G
+import Timer as T
 
 screenWidth, screenHeight :: CInt
 (screenWidth, screenHeight) = (640, 480)
@@ -20,4 +22,6 @@ main = do
   initSDL
   window <- SDL.createWindow "MEMES" SDL.defaultWindow { SDL.windowInitialSize = V2 screenWidth screenHeight }
   renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer { SDL.rendererType = SDL.AcceleratedRenderer }
-  gameLoop (SDL.Rectangle (SDL.P (V2 0 0)) (V2 10 10)) renderer
+  initialTimer <- T.createTimer
+  gameLoop (G.createContext window renderer initialTimer Nothing)
+  SDL.quit

@@ -1,7 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
 module Timer (
     createTimer,
-    getElapsedTime
+    getElapsedTime,
+    Timer
 ) where
 
 import qualified SDL
@@ -21,3 +22,12 @@ getElapsedTime (Timer !time) = do
         delta = (fromIntegral currTime) - time 
         in return (delta * 0.001)
 
+
+instance Num Timer where
+    (Timer tl) + (Timer tr) = Timer (tl + tr)
+    (Timer tl) - (Timer tr) = Timer (tl - tr)
+    (Timer tl) * (Timer tr) = Timer (tl * tr)
+    negate (Timer t) = Timer (negate t)
+    abs (Timer t) = Timer (abs t)
+    signum (Timer t) = Timer (signum t)
+    fromInteger x = Timer (fromInteger x)
