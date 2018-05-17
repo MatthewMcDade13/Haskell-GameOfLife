@@ -14,9 +14,6 @@ import Timer as T
 screenWidth, screenHeight :: CInt
 (screenWidth, screenHeight) = (640, 480)
 
-test :: SDL.Point V2 CInt
-test = SDL.P (V2 0 0)
-
 main :: IO ()
 main = do
   initSDL

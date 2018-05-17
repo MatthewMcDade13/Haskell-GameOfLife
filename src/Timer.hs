@@ -8,7 +8,7 @@ module Timer (
 import qualified SDL
 import qualified SDL.Time as SDL
 
-newtype Timer = Timer Float
+newtype Timer = Timer Float deriving (Show)
 
 createTimer :: IO Timer
 createTimer = do

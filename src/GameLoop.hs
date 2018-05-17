@@ -24,23 +24,27 @@ move (SDL.Rectangle (SDL.P pos) size) offset =
 
 
 gameLoop :: G.Context -> IO ()
-gameLoop ctx@(G.Context _ renderer tickTimer _) = do
+gameLoop ctx@(G.Context win renderer tickTimer g) = do
     events <- SDL.pollEvents
     
     let isEscPressed = any (isKeyPressed SDL.KeycodeEscape) events
     
-    timer <- calcDt tickTimer
+    (dt, newTimer) <- getDt tickTimer
     SDL.clear renderer
     SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
 
-    Timer.getElapsedTime timer >>= print
+    print dt
 
     SDL.present renderer
 
-    unless isEscPressed (gameLoop newCtx)
+    unless isEscPressed (gameLoop $ newCtx newTimer)
 
     where 
-        calcDt t = Timer.createTimer >>= (\x -> return (x - t))
-        newCtx = G.setGameContext ctx (G.GameContext False)
-
+        getDt t = do 
+            newTimer <- Timer.createTimer
+            dt <- Timer.getElapsedTime t
+            return (dt, newTimer)
+        newCtx t = 
+            let nctx = G.setGrid ctx (G.createGrid 5 5 Nothing)
+            in G.setTimer nctx t
 

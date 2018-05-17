@@ -24,7 +24,10 @@ dependencies:
 - sdl2
 - text
 - containers
+- vector
+- random
 - mtl
+- threads
 
 library:
   source-dirs: src
