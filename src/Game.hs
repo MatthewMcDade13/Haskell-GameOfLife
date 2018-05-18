@@ -30,9 +30,12 @@ update = id
 
 
 createContext :: SDL.Window -> SDL.Renderer -> T.Timer -> Maybe Grid -> Context
-createContext win ren timer (Just ctx) = Context win ren timer ctx
-createContext win ren timer Nothing = 
-    Context win ren timer (Grid (V.replicate 50 (Cell False $ makeRect (sqVec 0) (sqVec 5))) (V2 5 10) 5) 
+createContext win ren timer (Just grid) = Context win ren timer grid
+createContext win ren timer Nothing = Context win ren timer grid
+    where
+        cell = Cell False rect
+        rect = makeRect (sqVec 0) (sqVec 5)
+        grid = Grid (V.replicate 50 cell) (V2 5 10) 5
 
 setGrid :: Context -> Grid -> Context
 setGrid ctx g = ctx { grid = g }
@@ -43,7 +46,11 @@ setTimer ctx t = ctx { tickTimer = t }
 
 createGrid :: V2 CInt -> CInt -> Maybe R.StdGen -> Grid
 createGrid gridSize@(V2 gw gh) cellSize Nothing = 
-    Grid (V.replicate (fromIntegral (gw * gh)) (Cell False $ makeRect (sqVec 0) (sqVec 0))) (V2 gw gh) (cellSize)
+    Grid { cells = (V.replicate vecSize cell), size = gridSize, cellSize = cellSize }
+    where
+        cell = Cell False rect
+        rect = makeRect (sqVec 0) (sqVec 0)
+        vecSize = fromIntegral (gw * gh)
 
 createGrid gsize@(V2 gw gh) cellSize (Just gen) = 
     Grid (V.fromList $ randGrid (gw * gh) cellSize [] gen) gsize cellSize
