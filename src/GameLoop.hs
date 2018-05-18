@@ -7,6 +7,7 @@ module GameLoop (
 import qualified Timer
 import qualified SDL
 import qualified Game as G
+import qualified Data.Vector as V
 import Keyboard
 import Control.Monad (unless, when)
 import SDL.Vect
@@ -25,26 +26,37 @@ move (SDL.Rectangle (SDL.P pos) size) offset =
 
 gameLoop :: G.Context -> IO ()
 gameLoop ctx@(G.Context win renderer tickTimer g) = do
-    events <- SDL.pollEvents
-    
-    let isEscPressed = any (isKeyPressed SDL.KeycodeEscape) events
+
+    events <- SDL.pollEvents    
+    let shouldExit = any shouldClose events
     
     (dt, newTimer) <- getDt tickTimer
-    SDL.clear renderer
-    SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
 
-    print dt
+    let newGrid = G.update g
 
-    SDL.present renderer
+    render renderer g
 
-    unless isEscPressed (gameLoop $ newCtx newTimer)
+    unless shouldExit (gameLoop $ newCtx newTimer newGrid)
 
     where 
         getDt t = do 
             newTimer <- Timer.createTimer
             dt <- Timer.getElapsedTime t
             return (dt, newTimer)
-        newCtx t = 
-            let nctx = G.setGrid ctx (G.createGrid 5 5 Nothing)
+        newCtx t g = 
+            let nctx = G.setGrid ctx g
             in G.setTimer nctx t
+        shouldClose event = 
+            isKeyPressed SDL.KeycodeEscape event ||
+            flip isEvent SDL.QuitEvent event
 
+
+render :: SDL.Renderer -> G.Grid -> IO ()
+render renderer grid = do
+    SDL.clear renderer
+    SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
+
+    let (alive, dead) = V.partition (\c -> G.isAlive c) $ G.cells grid
+
+    -- Some rendering shit
+    SDL.present renderer

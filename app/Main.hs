@@ -14,10 +14,17 @@ import Timer as T
 screenWidth, screenHeight :: CInt
 (screenWidth, screenHeight) = (640, 480)
 
+windowConfig :: SDL.WindowConfig
+windowConfig =
+  SDL.defaultWindow { 
+    SDL.windowInitialSize = V2 screenWidth screenHeight,
+    SDL.windowResizable = True
+    }
+
 main :: IO ()
 main = do
   initSDL
-  window <- SDL.createWindow "MEMES" SDL.defaultWindow { SDL.windowInitialSize = V2 screenWidth screenHeight }
+  window <- SDL.createWindow "MEMES" windowConfig
   renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer { SDL.rendererType = SDL.AcceleratedRenderer }
   initialTimer <- T.createTimer
   gameLoop (G.createContext window renderer initialTimer Nothing)

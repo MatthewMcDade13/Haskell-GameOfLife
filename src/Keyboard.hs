@@ -1,7 +1,8 @@
 module Keyboard (
     getKeyPressed,
     isKeyPressedLive,
-    isKeyPressed
+    isKeyPressed,
+    isEvent
 ) where
 
 import qualified SDL
@@ -27,3 +28,6 @@ isKeyPressed key event =
             SDL.keyboardEventKeyMotion keyboardEvent == SDL.Pressed &&
             SDL.keysymKeycode (SDL.keyboardEventKeysym keyboardEvent) == key
         _ -> False
+
+isEvent :: SDL.Event -> SDL.EventPayload -> Bool
+isEvent (SDL.Event { SDL.eventPayload = ep }) targetType = ep == targetType

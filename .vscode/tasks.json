@@ -8,6 +8,12 @@
             "type": "shell",
             "command": "stack build",
             "problemMatcher": []
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "command": "stack exec GameOfLife-exe",
+            "problemMatcher": []
         }
     ]
 }
