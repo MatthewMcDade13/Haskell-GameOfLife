@@ -1,14 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main (main) where
 
-import Init
 import GameLoop
-import Control.Concurrent (threadDelay)
+import Context
 import Foreign.C.Types
 import SDL.Vect
 import qualified SDL
 import System.IO
-import Game as G
 import Timer as T
 
 screenWidth, screenHeight :: CInt
@@ -23,9 +21,9 @@ windowConfig =
 
 main :: IO ()
 main = do
-  initSDL
+  SDL.initialize [SDL.InitVideo]
   window <- SDL.createWindow "MEMES" windowConfig
   renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer { SDL.rendererType = SDL.AcceleratedRenderer }
   initialTimer <- T.createTimer
-  gameLoop (G.createContext window renderer initialTimer Nothing)
+  gameLoop (createContext window renderer initialTimer Nothing)
   SDL.quit
