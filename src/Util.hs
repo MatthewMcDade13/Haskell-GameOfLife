@@ -1,5 +1,7 @@
 module Util (
     makeRect,
+    getRectPos,
+    getRectSize,
     sqVec
 ) where
     
@@ -9,6 +11,12 @@ import Foreign.C.Types
 
 makeRect :: V2 CInt -> V2 CInt -> SDL.Rectangle CInt
 makeRect pos size = SDL.Rectangle (SDL.P pos) (size)
+
+getRectPos :: SDL.Rectangle CInt -> V2 CInt
+getRectPos (SDL.Rectangle (SDL.P pos) _) = pos
+
+getRectSize :: SDL.Rectangle CInt -> V2 CInt
+getRectSize (SDL.Rectangle _ size) = size
 
 -- makes vector with same with and height as given int
 sqVec :: CInt -> V2 CInt

@@ -53,9 +53,13 @@ gameLoop ctx@(Context win renderer tickTimer g) = do
 render :: SDL.Renderer -> Grid -> IO ()
 render renderer grid = do
     SDL.clear renderer
-    SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
-
+    
     let (alive, dead) = V.partition (\c -> isAlive c) $ cells grid
-
+    
+    SDL.rendererDrawColor renderer SDL.$= V4 255 0 0 0
+    SDL.fillRects renderer (asRects alive)
+    SDL.drawRects renderer (asRects dead)
+    
+    SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
     -- Some rendering shit
     SDL.present renderer
