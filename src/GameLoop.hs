@@ -7,7 +7,6 @@ module GameLoop (
 import qualified SDL
 import qualified Data.Vector as V
 import Timer
-import Game
 import Grid
 import Context
 import Keyboard
@@ -15,27 +14,24 @@ import Control.Monad (unless, when)
 import SDL.Vect
 import Foreign.C.Types
 import System.IO
-import Control.Monad.State
-import Control.Monad.IO.Class
-
-move :: SDL.Rectangle CInt -> V2 CInt -> SDL.Rectangle CInt
-move (SDL.Rectangle (SDL.P pos) size) offset = 
-    SDL.Rectangle (SDL.P (pos + offset)) (size)
-
 
 gameLoop :: Context -> IO ()
-gameLoop ctx@(Context win renderer tickTimer g) = do
+gameLoop ctx@(Context _ renderer genTimer genDur g) = do
 
     events <- SDL.pollEvents    
-    let shouldExit = any shouldClose events
+    currTime <- getElapsedTime genTimer
+
+    let 
+        shouldExit = any shouldClose events
+        shouldTick = currTime >= genDur
+
+    nextTimer <- if shouldTick then createTimer else return genTimer
     
-    (dt, newTimer) <- getDt tickTimer
-
-    let newGrid = update g
-
+    let newGrid = if shouldTick then update g else g
+    
     render renderer g
-
-    unless shouldExit (gameLoop $ newCtx newTimer newGrid)
+    
+    unless shouldExit (gameLoop $ newCtx nextTimer newGrid)
 
     where 
         getDt t = do 
@@ -49,6 +45,24 @@ gameLoop ctx@(Context win renderer tickTimer g) = do
             isKeyPressed SDL.KeycodeEscape event ||
             flip isEvent SDL.QuitEvent event
 
+update :: Grid -> Grid
+update grid = grid { cells = newCells }
+    where
+        checkNeighbors cell =
+            let 
+                liveNeighbors = numLiveNeighbors cell grid
+                willDie = liveNeighbors < 2 || liveNeighbors > 3
+                willSpawn = liveNeighbors == 3
+            in
+                if willDie then
+                    cell { isAlive = False }
+                else if willSpawn then
+                    cell { isAlive = True }
+                else 
+                    cell
+        newCells = V.map checkNeighbors gridCells
+        gridCells = cells grid
+
 
 render :: SDL.Renderer -> Grid -> IO ()
 render renderer grid = do
@@ -56,10 +70,14 @@ render renderer grid = do
     
     let (alive, dead) = V.partition (\c -> isAlive c) $ cells grid
     
-    SDL.rendererDrawColor renderer SDL.$= V4 255 0 0 0
+    setColor $ V4 67 31 31 255
     SDL.fillRects renderer (asRects alive)
+    setColor $ V4 105 105 105 255
     SDL.drawRects renderer (asRects dead)
     
-    SDL.rendererDrawColor renderer SDL.$= V4 0 0 0 0 
+    setColor $ V4 0 0 0 0 
     -- Some rendering shit
     SDL.present renderer
+
+    where 
+        setColor color = SDL.rendererDrawColor renderer SDL.$= color

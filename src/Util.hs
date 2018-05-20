@@ -19,5 +19,5 @@ getRectSize :: SDL.Rectangle CInt -> V2 CInt
 getRectSize (SDL.Rectangle _ size) = size
 
 -- makes vector with same with and height as given int
-sqVec :: CInt -> V2 CInt
+sqVec :: a -> V2 a
 sqVec size = V2 size size
